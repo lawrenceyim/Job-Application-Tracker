@@ -1,5 +1,6 @@
 import csv
 import datetime
+import os
 import tkinter
 
 
@@ -52,7 +53,8 @@ def display_menu():
                                             image=pixelVirtual,
                                             compound="c",
                                             height = 60,
-                                            width = 400)
+                                            width = 400,
+                                            command=delete_application)
     delete_application_button.pack(pady=10)
 
     exit_button = tkinter.Button(window, 
@@ -167,6 +169,76 @@ def add_application():
     response_label = tkinter.Label(window, font=('Arial', 20))
     response_label.place(x=200, y=450, height=60, width = 600)
 
+
+def delete_application():
+    def validate_data():
+        if (company_name_input.compare("end-1c", "==", "1.0") 
+            or job_title_input.compare("end-1c", "==", "1.0")):
+            response_label.config(text="Please fill out all entries")
+        else:
+            delete_data()
+
+    def delete_data():
+        company_name = company_name_input.get("1.0", "end-1c").strip()
+        job_title = job_title_input.get("1.0", "end-1c").strip()
+
+        with open('applications.csv', 'r') as input, open ('applications_edited.csv', 'w') as output:
+            reader = csv.reader(input)
+            writer = csv.writer(output)
+            application_deleted = False
+            for line in reader:
+                if line[0] == company_name and line[1] == job_title:
+                    application_deleted = True
+                else:
+                    writer.writerow(line)
+
+            if application_deleted:
+                response_label.config(text="Application deleted")
+            else:
+                response_label.config(text="No application with that company name and job title found")
+
+        if (os.path.exists("applications.csv")) and os.path.isfile("applications.csv"):
+            os.remove("applications.csv")
+        if (os.path.exists("applications_edited.csv")) and os.path.isfile("applications_edited.csv"):
+            os.rename("applications_edited.csv", "applications.csv")
+
+
+    clear_screen()
+
+    tkinter.Label(window, text="Delete application", font=('Arial', 20)).grid(row=0, column=2)
+
+    back_to_menu_button = tkinter.Button(window, 
+                                        text="Return to menu", 
+                                        font=('Arial', 20), 
+                                        image=pixelVirtual,
+                                        compound="c",
+                                        height = 60,
+                                        width = 200,
+                                        command=display_menu)
+    back_to_menu_button.grid(row=1, column=2)
+
+    tkinter.Label(window, text="Company name: ", font=('Arial', 20)).grid(row=2, column=1)
+
+    company_name_input = tkinter.Text(window, font=('Arial', 20), height=1, width=40)
+    company_name_input.grid(row=2, column=2, columnspan=2, sticky="w")
+    
+    tkinter.Label(window, text="Job title: ", font=('Arial', 20)).grid(row=3, column=1)
+    
+    job_title_input = tkinter.Text(window, font=('Arial', 20), height=1, width=40)
+    job_title_input.grid(row=3, column=2, columnspan=2, sticky="w")
+    
+    delete_button = tkinter.Button(window, 
+                                        text="Delete application", 
+                                        font=('Arial', 20), 
+                                        image=pixelVirtual,
+                                        compound="c",
+                                        height = 60,
+                                        width = 400,
+                                        command=validate_data)
+    delete_button.grid(row=4, column=2)
+    
+    response_label = tkinter.Label(window, font=('Arial', 20))
+    response_label.grid(row=5, column=1, columnspan=3)
 
 
 window = tkinter.Tk()
